@@ -15,7 +15,14 @@ async def create_upload_file(file: Optional[UploadFile] = None):
 
 async def _save_uploaded_file(file: UploadFile):
     uploaded_files_folder = Path(__file__).parent.parent.parent / "uploads" 
-    with open(uploaded_files_folder.resolve() / file.filename, "wb") as buffer:
+    filepath = uploaded_files_folder.resolve() / file.filename
+
+    if not uploaded_files_folder.exists():
+        uploaded_files_folder.mkdir(parents=True, exist_ok=True)
+    elif filepath.exists():
+            return {"error": f"File {file.filename} already exists"}
+    
+    with open(filepath, "wb") as buffer:
         content = file.file.read()
         buffer.write(content)
     return {"message": f"File {file.filename} uploaded successfully"}
