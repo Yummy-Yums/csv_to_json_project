@@ -4,7 +4,7 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from pathlib import Path
 from app.models.db import Transformation_Job, Transformation_Log
-from app.models.utils import create_job, create_log, get_job, get_job_log, get_jobs, check_file_exists
+from app.models.utils import *
 from app.utils.logger import logger
 from uuid import UUID
 from app.models.db import get_session
@@ -24,7 +24,7 @@ async def create_transformation_job(job: RequestJobCreate):
         return {"error": "No data was sent"}
     
     if not check_file_exists(job.filename):
-        return {"error": f"File {job.filename} has not been uploaded yet"}
+        return {"error": f"File {job.filename} has not been uploaded yet, You need to uplaod the file first before creating the job"}
     
     created_job = create_job(
         filename=job.filename,
@@ -32,8 +32,10 @@ async def create_transformation_job(job: RequestJobCreate):
         rules=json.dumps(job.rules),
         session=session
     )
+
     if not created_job:
         return {"error": "Failed to create transformation job"}
+    
     logger.info(f"Transformation job created: {created_job}")
     
     # create a log
@@ -44,7 +46,7 @@ async def create_transformation_job(job: RequestJobCreate):
         rules=created_job.rules
     )
 
-    log =create_log(
+    log = create_log(
         job_id=created_job.id,
         status=log.status,
         records_processed=log.records_processed,
@@ -52,9 +54,12 @@ async def create_transformation_job(job: RequestJobCreate):
         rules=json.loads(log.rules),
         session=session
     )
+
     if not log:
         return {"error": "Failed to create transformation log"}
+    
     logger.info(f"Transformation log created")
+
     return {
       "message": "Transformation job created successfully", 
       "job": created_job
@@ -68,12 +73,21 @@ async def get_transformation_job(job_id: UUID):
         if not job:
             raise HTTPException(status_code=404, detail="Job not found")
         
-        log = get_job_log(job_id, session)
-        if not log:
-            raise HTTPException(status_code=404, detail="Log not found for the job")
-        
         # return a properly formatted response
         return {"job": job}
+    finally:
+        session.close()
+
+@router.get("/transform-jobs/{job_id}/status")
+async def get_transformation_job(job_id: UUID):
+
+    try:
+        log = get_job_log(job_id, session)
+        if not log:
+            raise HTTPException(status_code=404, detail="Job Log not found")
+        
+        # return a properly formatted response
+        return {"job": log}
     finally:
         session.close()
 
@@ -98,5 +112,22 @@ async def get_transformation_jobs():
             })
         
         return jobs_array
+    finally:
+        session.close()
+
+# get job status 
+
+@router.post("/transform-jobs/{job_id}/run")
+async def run_transformation_job_endpoint(job_id: UUID):
+
+    try:
+        job = get_job(job_id, session)
+        if not job:
+            raise HTTPException(status_code=404, detail="Job not found")
+        
+        run_transformation_job(job.filename, job.rules)
+    
+        # return a properly formatted response
+        return {"job": job}
     finally:
         session.close()
