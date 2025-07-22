@@ -76,6 +76,7 @@ async def get_transformation_job(job_id: UUID):
         
         # return a properly formatted response
         return {"job": job}
+
     finally:
         session.close()
 
@@ -157,9 +158,6 @@ async def download_transformation_job(filename: str):
         download_files_folder_path = Path(__file__).parent.parent.parent / "downloads"
         
         file_path = download_files_folder_path / filename
-        # /home/test/Desktop/python/fastapi/playground/app/downloads/users.json
-
-        print(file_path)
         
         if not file_path.exists():
             raise HTTPException(status_code=404, detail=f"File {filename} does not exist")
