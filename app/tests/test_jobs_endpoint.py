@@ -102,8 +102,8 @@ def teardown_module():
             test_file_path.unlink()
         
         # Also check current directory
-        current_file_path = Path(test_file)
+        current_file_path = Path(__file__).parent.parent.parent / test_file
         if current_file_path.exists():
-            current_file_path.unlink(missing_ok=True)
+            current_file_path.unlink()
             
     print("Test cleanup complete - removed test files while preserving directories")

@@ -43,12 +43,3 @@ def test_download_file_outside_downloads():
     response = client.get("/transform-jobs/../secret.txt/download")
     
     assert response.status_code == 404
-
-
-# def teardown_module():
-#     """Cleanup test environment"""
-#     # Remove test downloads directory and its contents
-#     downloads_path = Path(__file__).parent.parent / "downloads"
-#     if downloads_path.exists():
-#         shutil.rmtree(downloads_path)
-#     logger.info("Test cleanup complete")
