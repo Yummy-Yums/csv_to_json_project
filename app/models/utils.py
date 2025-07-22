@@ -68,11 +68,20 @@ def get_job_log(job_id: Union[str, UUID], session: Session) -> Optional[Transfor
         session.close()
     return log
 
-def check_file_exists(fileName: str):
-    upload_files_folder = Path(__file__).parent.parent / "uploads"
-    filepath = upload_files_folder.resolve() / fileName
-    print(filepath)
-    return filepath.exists()
+def check_file_exists(fileName: str, option: str):
+    if option not in ["uploads", "downloads"]:
+        raise ValueError("Option must be either 'uploads' or 'downloads'")
+    
+    base_file_path = Path(__file__).parent.parent
+
+    if option == "uploads":
+        upload_files_folder = base_file_path/ "uploads"
+        filepath = upload_files_folder.resolve() / fileName
+        return filepath.exists()
+    elif option == "downloads":
+        download_files_folder = base_file_path/ "downloads"
+        filepath = download_files_folder.resolve() / fileName
+        return filepath.exists()
 
 def run_transformation_job(fileName: str, rules: Dict[Any, Any]):
     # check if fle exists
