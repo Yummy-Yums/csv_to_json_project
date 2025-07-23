@@ -6,7 +6,8 @@ A FastAPI-based service for uploading, transforming, and downloading CSV files w
 
 Read More at DeepWiki
 
-[DeepWiki](https://deepwiki.com/badge-maker?url=https%3A%2F%2Fdeepwiki.com%2FYummy-Yums%2Fcsv_to_json_project)
+[DeepWiki]
+https://deepwiki.com/badge-maker?url=https%3A%2F%2Fdeepwiki.com%2FYummy-Yums%2Fcsv_to_json_project
 
 ## Project Summary
 
